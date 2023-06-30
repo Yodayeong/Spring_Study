@@ -17,3 +17,4 @@ spring study repo with likelion_knu
 
 - 공부내용
   - [chapter1 - basics](/basics.md)
+  - [chapter2 - spring boot basics (1)](./springboot_basics1.md)

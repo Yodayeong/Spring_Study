@@ -774,3 +774,24 @@ thymeleaf
 
   ![multipart-log](spring.assets/multipart-log.png)
 
+<br>
+
+**postman environment 설정하기**
+
+- url이 바뀌는 것에 대한 유연성을 제공할 수 있다.
+
+  ![environment](spring.assets/environment.png)
+
+  - 우측 상단의 눈을 누른다.
+
+  ![add](spring.assets/add.png)
+
+  - Environment Add를 누른다.
+
+  ![environment_setting](spring.assets/environment_setting.png)
+
+  - 설정하고 싶은 값을 변수에 담아준다.
+  
+  ![setting](spring.assets/setting.png)
+  
+  - 생성한 environment를 적용한다.

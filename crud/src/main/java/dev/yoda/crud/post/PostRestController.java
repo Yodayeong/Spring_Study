@@ -2,6 +2,7 @@ package dev.yoda.crud.post;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -11,10 +12,12 @@ import java.util.List;
 @RequestMapping("post")
 public class PostRestController {
     private static final Logger logger = LoggerFactory.getLogger(PostRestController.class);
-    private final List<PostDto> postList;
+    private final PostService postService;
 
-    public PostRestController() {
-        this.postList = new ArrayList<>();
+    public PostRestController(
+            @Autowired PostService postService
+    ) {
+        this.postService = postService;
     }
 
     //http://localhost:8080/post
@@ -23,7 +26,7 @@ public class PostRestController {
     @PostMapping
     public void createPost(@RequestBody PostDto postDto) {
         logger.info(postDto.toString());
-        this.postList.add(postDto);
+        this.postService.createPost(postDto);
     }
 
     //http://localhost:8080/post
@@ -31,7 +34,7 @@ public class PostRestController {
     @GetMapping
     public List<PostDto> readPostAll() {
         logger.info("in read post all");
-        return this.postList;
+        return this.postService.readPostAll();
     }
 
     //http://localhost:8080/post?id=0
@@ -39,7 +42,7 @@ public class PostRestController {
     @GetMapping("{id}")
     public PostDto readPost(@PathVariable("id") int id) {
         logger.info("in read post");
-        return this.postList.get(id);
+        return this.postService.readPost(id);
     }
 
     //@PutMapping: 현재 보내는 데이터를 그 위치에 다시 넣어주세요.
@@ -50,19 +53,14 @@ public class PostRestController {
             @PathVariable("id") int id,
             @RequestBody PostDto postDto
     ) {
-        PostDto targetPost = this.postList.get(id);
-        if(postDto.getTitle() != null) {
-            targetPost.setTitle(postDto.getTitle());
-        }
-        if(postDto.getContent() != null) {
-            targetPost.setContent(postDto.getContent());
-        }
-        this.postList.set(id, targetPost);
+        logger.info("target id: " + id);
+        logger.info("update content: " + postDto);
+        this.postService.updatePost(id, postDto);
     }
 
     //DELETE /post/0
     @DeleteMapping("{id}")
     public void deletePost(@PathVariable("id") int id) {
-        this.postList.remove(id);
+        this.postService.deletePost(id);
     }
 }

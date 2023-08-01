@@ -860,23 +860,23 @@
 
    ![alter_table](spring.assets/alter_table.png)
 
-   4. post table에 board의 pk 값 넣어주기 (하나의 board는 여러 개의 post를 가질 수 있음)
+4. post table에 board의 pk 값 넣어주기 (하나의 board는 여러 개의 post를 가질 수 있음)
 
-      ![alter](spring.assets/alter.png)
+    ![alter](spring.assets/alter.png)
 
-   5. query문 작성하기 (board 엔티티 하나 생성, 해당 엔티티와 post를 연결 / inner join)
+5. query문 작성하기 (board 엔티티 하나 생성, 해당 엔티티와 post를 연결 / inner join)
 
-      ```sql
-      insert into board(name)
-      values('general');
-      
-      insert into post(title, content, writer, board)
-      values('Hello MySQL!', 'This is my first post.', 'yoda', 1);
-      
-      -- inner join
-      -- 특정 게시판에 있는 게시물들을 모두 보고싶을 때 (join 된 애들만 보여줌)
-      select * from board a inner join post b on a.id = b.board;
-      ```
+    ```sql
+    insert into board(name)
+    values('general');
+    
+    insert into post(title, content, writer, board)
+    values('Hello MySQL!', 'This is my first post.', 'yoda', 1);
+    
+    -- inner join
+    -- 특정 게시판에 있는 게시물들을 모두 보고싶을 때 (join 된 애들만 보여줌)
+    select * from board a inner join post b on a.id = b.board;
+    ```
       
    
    

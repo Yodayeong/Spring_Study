@@ -21,3 +21,4 @@ spring study repo with likelion_knu
   - [chapter3 - spring boot basics (2)](./springboot_basics2.md)
   - [1차 미션](./mission1.md)
   - [chapter4 - CRUD & Data (1)](./crud_1.md)
+  - [chapter5 - CRUD & Data (2)](./crud_2.md)

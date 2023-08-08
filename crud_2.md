@@ -1039,6 +1039,204 @@
     ```
 
   - 나머지 부분들 채워주기
+  
+    - `PostDao`
+  
+      ```java
+      package dev.yoda.jpa;
+      
+      import dev.yoda.jpa.entity.PostEntity;
+      import dev.yoda.jpa.repository.PostRepository;
+      import org.slf4j.Logger;
+      import org.slf4j.LoggerFactory;
+      import org.springframework.beans.factory.annotation.Autowired;
+      import org.springframework.http.HttpStatus;
+      import org.springframework.stereotype.Repository;
+      import org.springframework.web.server.ResponseStatusException;
+      
+      import java.util.Iterator;
+      import java.util.Optional;
+      
+      @Repository
+      public class PostDao {
+          private static final Logger logger = LoggerFactory.getLogger(PostDao.class);
+          private final PostRepository postRepository;
+      
+          public PostDao(
+                  @Autowired PostRepository postRepository
+          ) {
+              this.postRepository = postRepository;
+          }
+      
+          public void createPost(PostDto dto) {
+              PostEntity postEntity = new PostEntity();
+              postEntity.setTitle(dto.getTitle());
+              postEntity.setContent(dto.getContent());
+              postEntity.setWriter(dto.getWriter());
+              postEntity.setBoardEntity(null);
+              this.postRepository.save(postEntity);
+          }
+      
+          public PostEntity readPost(int id) {
+              Optional<PostEntity> postEntity = this.postRepository.findById((long) id);
+              if(postEntity.isEmpty()) {
+                  throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+              }
+              return postEntity.get();
+          }
+      
+          public Iterator<PostEntity> readPostAll() {
+              return this.postRepository.findAll().iterator();
+          }
+      
+          public void updatePost(int id, PostDto dto) {
+              Optional<PostEntity> targetEntity = this.postRepository.findById(Long.valueOf(id));
+              if(targetEntity.isEmpty()) {
+                  throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+              }
+              PostEntity postEntity = targetEntity.get();
+              postEntity.setTitle(dto.getTitle() == null ? postEntity.getTitle() : dto.getTitle());
+              postEntity.setContent(dto.getContent() == null ? postEntity.getContent() : dto.getContent());
+              this.postRepository.save(postEntity);
+          }
+      
+          public void deletePost(int id) {
+              Optional<PostEntity> targetEntity = this.postRepository.findById((long) id);
+              if(targetEntity.isEmpty()) {
+                  throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+              }
+              this.postRepository.delete(targetEntity.get());
+          }
+      }
+      ```
+  
+    - `PostService`
+  
+      ```java
+      package dev.yoda.jpa;
+      
+      import dev.yoda.jpa.entity.PostEntity;
+      import org.slf4j.Logger;
+      import org.slf4j.LoggerFactory;
+      import org.springframework.beans.factory.annotation.Autowired;
+      import org.springframework.stereotype.Service;
+      
+      import java.util.ArrayList;
+      import java.util.Iterator;
+      import java.util.List;
+      
+      @Service
+      public class PostService {
+          private static final Logger logger = LoggerFactory.getLogger(PostService.class);
+          private final PostDao postDao;
+      
+          public PostService(
+                  @Autowired PostDao postDao
+          ) {
+              this.postDao = postDao;
+          }
+      
+          public void createPost(PostDto postDto) {
+              this.postDao.createPost(postDto);
+          }
+      
+          public PostDto readPost(int id) {
+              PostEntity postEntity = this.postDao.readPost(id);
+              return new PostDto(
+                      Math.toIntExact(postEntity.getId()),
+                      postEntity.getTitle(),
+                      postEntity.getContent(),
+                      postEntity.getWriter(),
+                      postEntity.getBoardEntity() == null ? 0 : Math.toIntExact(postEntity.getBoardEntity().getId())
+              );
+          }
+      
+          public List<PostDto> readPostAll() {
+              Iterator<PostEntity> iterator = this.postDao.readPostAll();
+              List<PostDto> postDtoList = new ArrayList<>();
+      
+              while(iterator.hasNext()) {
+                  PostEntity postEntity = iterator.next();
+                  postDtoList.add(new PostDto(
+                          Math.toIntExact(postEntity.getId()),
+                          postEntity.getTitle(),
+                          postEntity.getContent(),
+                          postEntity.getWriter(),
+                          postEntity.getBoardEntity() == null ? 0 : Math.toIntExact(postEntity.getBoardEntity().getId())
+                  ));
+              }
+              return postDtoList;
+          }
+      
+          public void updatePost(int id, PostDto postDto) {
+              this.postDao.updatePost(id, postDto);
+          }
+      
+          public void deletePost(int id) {
+              this.postDao.deletePost(id);
+          }
+      
+      }
+      ```
+  
+    - `PostController`
+  
+      ```java
+      package dev.yoda.jpa;
+      
+      import org.slf4j.Logger;
+      import org.slf4j.LoggerFactory;
+      import org.springframework.beans.factory.annotation.Autowired;
+      import org.springframework.http.HttpStatus;
+      import org.springframework.web.bind.annotation.*;
+      
+      import java.util.List;
+      
+      @RestController
+      @RequestMapping("post")
+      public class PostController {
+          private static final Logger logger = LoggerFactory.getLogger(PostController.class);
+          private final PostService postService;
+      
+          public PostController(
+                  @Autowired PostService postService
+          ) {
+              this.postService = postService;
+          }
+      
+          @PostMapping()
+          @ResponseStatus(HttpStatus.CREATED)
+          public void createPost(@RequestBody PostDto dto) {
+              this.postService.createPost(dto);
+          }
+      
+          @GetMapping("{id}")
+          public PostDto readPost(@PathVariable("id") int id) {
+              return this.postService.readPost(id);
+          }
+      
+          @GetMapping("")
+          public List<PostDto> readPostAll() {
+              return this.postService.readPostAll();
+          }
+      
+          @PutMapping("{id}")
+          @ResponseStatus(HttpStatus.ACCEPTED)
+          public void updatePost(
+                  @PathVariable("id") int id,
+                  @RequestBody PostDto dto
+          ) {
+              this.postService.updatePost(id, dto);
+          }
+      
+          @DeleteMapping("{id}")
+          @ResponseStatus(HttpStatus.ACCEPTED)
+          public void deletePost(@PathVariable("id") int id
+          ) {
+              this.postService.deletePost(id);
+          }
+      }
+      ```
 
 <br>
 
